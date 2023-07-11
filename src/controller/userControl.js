@@ -1,7 +1,7 @@
 const express = require('express')
 const { isValidRequestBody, isValidEmail, isValidMobile, isValidPassword, isValid } = require('../validations/validation')
 const userModel = require('../models/userModel')
-const {uploadFiles} = require('../aws/aws')
+const {uploadFile} = require('../aws/aws')
 const { isValidObjectId } = require('mongoose');
 
 const JWT = require('jsonwebtoken')
@@ -10,6 +10,7 @@ require('dotenv').config();
 const { JWT_SECRET, JWT_EXPIRY } = process.env
 
 const bcrypt = require('bcrypt')
+//========================Register User/===================
 const createUser = async function (req, res) {
     try {
         const file = req.files;
@@ -53,7 +54,7 @@ const createUser = async function (req, res) {
             return res.status(400).json({ status: false, message: 'Please enter a pincode' });
         }
         if (file && file.length > 0) {
-            var imgUrl = await uploadFiles(file[0])
+            var imgUrl = await uploadFile(file[0])
         } else {
             return res.status(400).send({ status: false, message: "please insert image" })
         }
@@ -63,7 +64,7 @@ const createUser = async function (req, res) {
         
         const user = await userModel.create({ fname, lname, email, phone, password: pass, profileImage: imgUrl, address: { shipping, billing } })
 
-        return res.status(200).json({ status: true, message: 'Success', data: user });
+        return res.status(200).json({ status: true, message: 'User created Successfully', data: user });
 
     }
         catch (error) {
@@ -109,7 +110,7 @@ const signIn = async (req, res) => {
       })
   
       res.setHeader("x-api-key", token);
-      return res.status(200).send({status: true,message: "User login successfull", data: {token}});
+      return res.status(200).send({status: true,message: "User login successfully", data: {token}});
     } catch (error) {
       return res.status(500).send({ status: false, message: error.message });
     }
@@ -261,7 +262,7 @@ const signIn = async (req, res) => {
       }
   
       if (files && files.length > 0) {
-        let uploadFileURL = await uploadFiles(files[0]);
+        let uploadFileURL = await uploadFile(files[0]);
   
         updatedData.profileImage = uploadFileURL;
       }
